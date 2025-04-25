@@ -241,80 +241,109 @@
 
         @media (max-width: 768px) {
             #title {
-                font-size: 5vw;
-                top: 2vh;
+                font-size: 4vw;
+                top: 1vh;
+                margin-bottom: 2vw;
             }
 
             #pump-link {
-                font-size: 10px;
-                top: 10px;
-                right: 10px;
-                padding: 3px;
+                font-size: 9px;
+                top: 5px;
+                right: 5px;
+                padding: 2px;
             }
 
             #manual-button, #init-button {
-                font-size: 12px;
-                padding: 3px 8px;
-                top: 10px;
+                font-size: 11px;
+                padding: 2px 6px;
+                top: 5px;
             }
 
             #init-button {
-                left: 100px;
+                left: 80px;
             }
 
             #message {
-                font-size: 3vw;
-                margin-bottom: 4vw;
+                font-size: 2.5vw;
+                margin-bottom: 3vw;
+                top: -1vw;
             }
 
             #eye-container {
-                font-size: 3vw;
+                font-size: 2.5vw;
+                margin-top: 2vw;
             }
 
             #terminal {
                 width: 95%;
-                height: 35px;
-                bottom: 2vh;
+                height: 32px;
+                bottom: 1vh;
             }
 
             #terminal-input {
-                font-size: 12px;
+                font-size: 11px;
             }
 
             #binary-clock {
-                font-size: 12px;
-                bottom: 10px;
-                right: 10px;
+                font-size: 10px;
+                bottom: 5px;
+                right: 5px;
             }
 
             #binary-time {
-                font-size: 14px;
+                font-size: 12px;
             }
 
             #binary-date {
-                font-size: 10px;
+                font-size: 9px;
+            }
+
+            #command-help {
+                bottom: 40px;
+                font-size: 11px;
+                padding: 6px;
+                max-height: 40vh;
+                overflow-y: auto;
+            }
+
+            .command-line {
+                margin: 3px 0;
             }
         }
 
         @media (max-width: 480px) {
             #title {
-                font-size: 6vw;
+                font-size: 5vw;
+                top: 0.5vh;
             }
 
             #message {
-                font-size: 4vw;
+                font-size: 3vw;
+                margin-bottom: 2vw;
             }
 
             #eye-container {
-                font-size: 4vw;
+                font-size: 3vw;
+                margin-top: 1vw;
             }
 
             #terminal {
-                height: 30px;
+                height: 28px;
+                bottom: 0.5vh;
             }
 
             #terminal-input {
-                font-size: 11px;
+                font-size: 10px;
+            }
+
+            #command-help {
+                bottom: 35px;
+                font-size: 10px;
+                padding: 4px;
+            }
+
+            .command-line {
+                margin: 2px 0;
             }
         }
 
@@ -526,6 +555,24 @@
                 font-size: 11px;
                 padding: 6px;
             }
+        }
+
+        /* Add scrollbar styling for command help */
+        #command-help::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #command-help::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        #command-help::-webkit-scrollbar-thumb {
+            background: #00ff00;
+            border-radius: 2px;
+        }
+
+        #command-help::-webkit-scrollbar-thumb:hover {
+            background: #00cc00;
         }
     </style>
 </head>
