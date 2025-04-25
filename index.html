@@ -14,6 +14,7 @@
             align-items: center;
             font-family: 'Courier New', monospace;
             overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
         #container {
@@ -239,20 +240,81 @@
         }
 
         @media (max-width: 768px) {
-            #eye-container {
-                font-size: 2.5vw;
+            #title {
+                font-size: 5vw;
+                top: 2vh;
             }
+
+            #pump-link {
+                font-size: 10px;
+                top: 10px;
+                right: 10px;
+                padding: 3px;
+            }
+
+            #manual-button, #init-button {
+                font-size: 12px;
+                padding: 3px 8px;
+                top: 10px;
+            }
+
+            #init-button {
+                left: 100px;
+            }
+
             #message {
-                font-size: 2vw;
+                font-size: 3vw;
+                margin-bottom: 4vw;
+            }
+
+            #eye-container {
+                font-size: 3vw;
+            }
+
+            #terminal {
+                width: 95%;
+                height: 35px;
+                bottom: 2vh;
+            }
+
+            #terminal-input {
+                font-size: 12px;
+            }
+
+            #binary-clock {
+                font-size: 12px;
+                bottom: 10px;
+                right: 10px;
+            }
+
+            #binary-time {
+                font-size: 14px;
+            }
+
+            #binary-date {
+                font-size: 10px;
             }
         }
 
         @media (max-width: 480px) {
-            #eye-container {
-                font-size: 3.5vw;
+            #title {
+                font-size: 6vw;
             }
+
             #message {
-                font-size: 3vw;
+                font-size: 4vw;
+            }
+
+            #eye-container {
+                font-size: 4vw;
+            }
+
+            #terminal {
+                height: 30px;
+            }
+
+            #terminal-input {
+                font-size: 11px;
             }
         }
 
@@ -261,7 +323,7 @@
             bottom: 3vh;
             left: 50%;
             transform: translateX(-50%);
-            width: 50%;
+            width: 90%;
             max-width: 500px;
             height: 40px;
             background-color: rgba(0, 0, 0, 0.7);
@@ -309,6 +371,9 @@
             caret-color: #00ff00;
             text-shadow: 0 0 5px #00ff00;
             letter-spacing: 1px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
         }
 
         #terminal-input::placeholder {
@@ -1067,6 +1132,35 @@
 
         // Initialize the animation when the page loads
         window.addEventListener('load', setupMatrixAnimation);
+
+        // Add mobile keyboard handling
+        terminalInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const command = terminalInput.value.trim().toLowerCase();
+                if (command !== '') {
+                    if (command.length >= 3) {
+                        let found = false;
+                        for (const questionPattern of questionPatterns) {
+                            if (questionPattern.pattern.test(command)) {
+                                showIdentityMessage(questionPattern.type);
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            showIdentityMessage('access_denied');
+                        }
+                    }
+                    terminalInput.value = '';
+                }
+            }
+        });
+
+        // Prevent zoom on double tap for mobile
+        document.addEventListener('dblclick', function(event) {
+            event.preventDefault();
+        });
     </script>
 </body>
 </html> 
