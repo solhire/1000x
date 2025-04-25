@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1000x Initialization</title>
+    <style>
+        body {
+            background-color: black;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            overflow: hidden;
+        }
+
+        #container {
+            width: 80%;
+            max-width: 800px;
+            text-align: center;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        #question-container {
+            margin: 20px 0;
+            min-height: 100px;
+            position: relative;
+        }
+
+        #question {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            letter-spacing: 1px;
+        }
+
+        #input-container {
+            display: none;
+            margin: 20px 0;
+        }
+
+        #text-input {
+            background: transparent;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            padding: 5px 10px;
+            width: 200px;
+            outline: none;
+            text-shadow: 0 0 5px #00ff00;
+            letter-spacing: 1px;
+        }
+
+        #text-input:focus {
+            border-color: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        .button-container {
+            display: none;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .ritual-button {
+            background: transparent;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            padding: 5px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px #00ff00;
+            letter-spacing: 1px;
+        }
+
+        .ritual-button:hover {
+            border-color: #00ff00;
+            color: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+            background-color: rgba(0, 50, 0, 0.7);
+        }
+
+        .typewriter {
+            overflow: hidden;
+            white-space: nowrap;
+            margin: 0 auto;
+            animation: typing 3.5s steps(40, end);
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        #progress {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(0, 255, 0, 0.5);
+            font-size: 0.8em;
+            text-shadow: 0 0 5px #00ff00;
+            letter-spacing: 1px;
+        }
+
+        .binary-decoration {
+            position: absolute;
+            color: rgba(0, 255, 0, 0.2);
+            font-size: 0.8em;
+            pointer-events: none;
+        }
+
+        .binary-decoration.top-left {
+            top: -20px;
+            left: -20px;
+        }
+
+        .binary-decoration.top-right {
+            top: -20px;
+            right: -20px;
+        }
+
+        .binary-decoration.bottom-left {
+            bottom: -20px;
+            left: -20px;
+        }
+
+        .binary-decoration.bottom-right {
+            bottom: -20px;
+            right: -20px;
+        }
+
+        #role-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background-color: black;
+            z-index: 100;
+        }
+
+        #role-text {
+            font-size: 3em;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.5s ease;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.2em;
+            position: relative;
+        }
+
+        #role-text::before,
+        #role-text::after {
+            content: "01001000";
+            position: absolute;
+            color: rgba(0, 255, 0, 0.3);
+            font-size: 0.3em;
+            white-space: nowrap;
+            letter-spacing: 0.1em;
+        }
+
+        #role-text::before {
+            top: -30px;
+            left: -100px;
+        }
+
+        #role-text::after {
+            bottom: -30px;
+            right: -100px;
+        }
+
+        #role-text.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .glitch {
+            animation: glitch 1s infinite;
+        }
+
+        @keyframes glitch {
+            0% {
+                text-shadow: 0.05em 0 0 #00ff00, -0.05em -0.025em 0 #ff00ff,
+                            0.025em 0.05em 0 #00ffff;
+                transform: translate(0);
+            }
+            14% {
+                text-shadow: 0.05em 0 0 #00ff00, -0.05em -0.025em 0 #ff00ff,
+                            0.025em 0.05em 0 #00ffff;
+                transform: translate(0);
+            }
+            15% {
+                text-shadow: -0.05em -0.025em 0 #00ff00, 0.025em 0.025em 0 #ff00ff,
+                            -0.05em -0.05em 0 #00ffff;
+                transform: translate(-0.025em, 0.025em);
+            }
+            49% {
+                text-shadow: -0.05em -0.025em 0 #00ff00, 0.025em 0.025em 0 #ff00ff,
+                            -0.05em -0.05em 0 #00ffff;
+                transform: translate(-0.025em, 0.025em);
+            }
+            50% {
+                text-shadow: 0.025em 0.05em 0 #00ff00, 0.05em 0 0 #ff00ff,
+                            0 -0.05em 0 #00ffff;
+                transform: translate(0.025em, -0.025em);
+            }
+            99% {
+                text-shadow: 0.025em 0.05em 0 #00ff00, 0.05em 0 0 #ff00ff,
+                            0 -0.05em 0 #00ffff;
+                transform: translate(0.025em, -0.025em);
+            }
+            100% {
+                text-shadow: -0.025em 0 0 #00ff00, -0.025em -0.025em 0 #ff00ff,
+                            -0.025em -0.05em 0 #00ffff;
+                transform: translate(0);
+            }
+        }
+
+        .binary-rain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .binary-column {
+            position: absolute;
+            top: -100%;
+            color: #00ff00;
+            font-size: 1em;
+            white-space: nowrap;
+            animation: rain linear infinite;
+        }
+
+        @keyframes rain {
+            0% {
+                transform: translateY(-100%);
+            }
+            100% {
+                transform: translateY(100vh);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="question-container">
+            <div class="binary-decoration top-left">01001000</div>
+            <div class="binary-decoration top-right">01001000</div>
+            <div class="binary-decoration bottom-left">01001000</div>
+            <div class="binary-decoration bottom-right">01001000</div>
+            <div id="question"></div>
+            <div id="input-container">
+                <input type="text" id="text-input" autocomplete="off">
+            </div>
+            <div class="button-container">
+                <button class="ritual-button" onclick="answerYes()">YES</button>
+                <button class="ritual-button" onclick="answerNo()">NO</button>
+            </div>
+        </div>
+        <div id="progress"></div>
+    </div>
+
+    <div id="role-container">
+        <div class="binary-rain"></div>
+        <div id="role-text"></div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                text: "DO YOU ACCEPT THE CONSEQUENCES OF KNOWLEDGE?",
+                type: "yesno"
+            },
+            {
+                text: "ARE YOU READY TO SEE WHAT OTHERS CANNOT?",
+                type: "yesno"
+            },
+            {
+                text: "WHAT IS YOUR TRUE NAME?",
+                type: "text"
+            },
+            {
+                text: "WHAT DO YOU SEEK?",
+                type: "text"
+            }
+        ];
+
+        const roles = [
+            "SEEKER",
+            "SIGNAL",
+            "HOLLOW",
+            "MIRROR",
+            "WATCHER"
+        ];
+
+        let currentQuestion = 0;
+        let answers = [];
+
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            const questionElement = document.getElementById('question');
+            const inputContainer = document.getElementById('input-container');
+            const buttonContainer = document.querySelector('.button-container');
+            const progressElement = document.getElementById('progress');
+
+            // Update progress
+            progressElement.textContent = `QUESTION ${currentQuestion + 1} OF ${questions.length}`;
+
+            // Show question with typing effect
+            questionElement.textContent = question.text;
+            questionElement.style.opacity = '1';
+
+            // Show appropriate input method
+            if (question.type === 'yesno') {
+                inputContainer.style.display = 'none';
+                buttonContainer.style.display = 'flex';
+            } else {
+                inputContainer.style.display = 'block';
+                buttonContainer.style.display = 'none';
+                document.getElementById('text-input').value = '';
+                document.getElementById('text-input').focus();
+            }
+        }
+
+        function answerYes() {
+            answers.push('YES');
+            nextQuestion();
+        }
+
+        function answerNo() {
+            answers.push('NO');
+            nextQuestion();
+        }
+
+        function handleTextInput(event) {
+            if (event.key === 'Enter' && event.target.value.trim() !== '') {
+                answers.push(event.target.value.trim());
+                nextQuestion();
+            }
+        }
+
+        function createBinaryRain() {
+            const rainContainer = document.querySelector('.binary-rain');
+            const columns = 20;
+            const binaryChars = "01";
+            
+            for (let i = 0; i < columns; i++) {
+                const column = document.createElement('div');
+                column.className = 'binary-column';
+                column.style.left = `${(i * 100) / columns}%`;
+                column.style.animationDuration = `${2 + Math.random() * 3}s`;
+                column.style.animationDelay = `${Math.random() * 2}s`;
+                
+                let binaryString = '';
+                for (let j = 0; j < 20; j++) {
+                    binaryString += binaryChars.charAt(Math.floor(Math.random() * 2));
+                }
+                column.textContent = binaryString;
+                
+                rainContainer.appendChild(column);
+            }
+        }
+
+        function showRole() {
+            const roleContainer = document.getElementById('role-container');
+            const roleText = document.getElementById('role-text');
+            const randomRole = roles[Math.floor(Math.random() * roles.length)];
+            
+            // Hide the question container
+            document.getElementById('container').style.display = 'none';
+            
+            // Show the role container
+            roleContainer.style.display = 'flex';
+            
+            // Create binary rain effect
+            createBinaryRain();
+            
+            // Add glitch effect and show role
+            setTimeout(() => {
+                roleText.textContent = randomRole;
+                roleText.classList.add('visible', 'glitch');
+                
+                // After showing the role, redirect to main page
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 3000);
+            }, 500);
+        }
+
+        function nextQuestion() {
+            const questionElement = document.getElementById('question');
+            questionElement.style.opacity = '0';
+
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < questions.length) {
+                    showQuestion();
+                } else {
+                    // All questions answered, show role
+                    showRole();
+                }
+            }, 500);
+        }
+
+        // Initialize
+        document.getElementById('text-input').addEventListener('keypress', handleTextInput);
+        showQuestion();
+    </script>
+</body>
+</html> 
