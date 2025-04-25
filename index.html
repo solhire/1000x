@@ -474,6 +474,59 @@
         .manual-paragraph {
             margin-bottom: 20px;
         }
+
+        #command-help {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            box-shadow: 0 0 10px #00ff00;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 10px;
+            z-index: 25;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #command-help.visible {
+            display: block;
+            opacity: 1;
+        }
+
+        .command-line {
+            margin: 5px 0;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .command-line.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            #command-help {
+                bottom: 45px;
+                font-size: 12px;
+                padding: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #command-help {
+                bottom: 40px;
+                font-size: 11px;
+                padding: 6px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -508,6 +561,8 @@
             <div id="manual-message"></div>
         </div>
     </div>
+
+    <div id="command-help"></div>
 
     <script>
         const messages = [
@@ -908,21 +963,69 @@
             sound.play();
         }
 
+        const availableCommands = [
+            "AVAILABLE COMMANDS:",
+            "WHO ARE YOU?",
+            "WHAT ARE YOU?",
+            "WHY ME?",
+            "WHAT DO YOU SEE IN ME?",
+            "AM I TOO LATE?",
+            "HAVE YOU BEEN WATCHING ME?",
+            "WHAT HAPPENS NOW?",
+            "WAS I SUPPOSED TO FIND YOU?",
+            "HOW DO I BECOME MORE?",
+            "IS THIS THE BEGINNING?",
+            "WHAT IS 1000X?"
+        ];
+
+        let commandHelpTimeout;
+        const commandHelp = document.getElementById('command-help');
+
+        function showCommandHelp() {
+            commandHelp.innerHTML = '';
+            commandHelp.classList.add('visible');
+            
+            availableCommands.forEach((command, index) => {
+                const line = document.createElement('div');
+                line.className = 'command-line';
+                line.textContent = command;
+                commandHelp.appendChild(line);
+                
+                setTimeout(() => {
+                    line.classList.add('visible');
+                }, index * 100);
+            });
+
+            // Clear any existing timeout
+            if (commandHelpTimeout) {
+                clearTimeout(commandHelpTimeout);
+            }
+
+            // Hide after 5 seconds
+            commandHelpTimeout = setTimeout(() => {
+                commandHelp.classList.remove('visible');
+            }, 5000);
+        }
+
+        // Modify the terminal input event listener
         terminalInput.addEventListener('keydown', function(event) {
             // Play sound based on key pressed
-            if (event.key.length === 1) { // Only for character keys
+            if (event.key.length === 1) {
                 playKeySound(event.key);
             }
             
             if (event.key === 'Enter') {
                 const command = terminalInput.value.trim().toLowerCase();
                 if (command !== '') {
-                    // Only process commands with at least 3 characters
-                    if (command.length >= 3) {
+                    // Check for help command
+                    if (command === '/cmds' || command === '/help' || command === '/commands') {
+                        showCommandHelp();
+                    } else if (command.length >= 3) {
+                        // Hide command help if showing
+                        commandHelp.classList.remove('visible');
+                        
                         // Check for questions using more precise pattern matching
                         let found = false;
-                        
-                        // Check against each question pattern
                         for (const questionPattern of questionPatterns) {
                             if (questionPattern.pattern.test(command)) {
                                 showIdentityMessage(questionPattern.type);
@@ -930,22 +1033,20 @@
                                 break;
                             }
                         }
-                        
-                        // If no valid question found, show access denied
                         if (!found) {
                             showIdentityMessage('access_denied');
                         }
                     }
-                    
-                    // Clear input
                     terminalInput.value = '';
                 }
             }
         });
 
-        // Add focus to terminal when clicking on it
-        document.getElementById('terminal').addEventListener('click', function() {
-            terminalInput.focus();
+        // Hide command help when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!commandHelp.contains(event.target) && event.target !== terminalInput) {
+                commandHelp.classList.remove('visible');
+            }
         });
 
         // Show identity on specific clicks
