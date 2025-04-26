@@ -309,6 +309,11 @@
             .command-line {
                 margin: 3px 0;
             }
+
+            #restore-text {
+                font-size: 18px;
+                margin-top: 15px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -344,6 +349,11 @@
 
             .command-line {
                 margin: 2px 0;
+            }
+
+            #restore-text {
+                font-size: 14px;
+                margin-top: 10px;
             }
         }
 
@@ -574,6 +584,70 @@
         #command-help::-webkit-scrollbar-thumb:hover {
             background: #00cc00;
         }
+
+        #restore-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+
+        #restore-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #restore-image {
+            max-width: 80%;
+            max-height: 70vh;
+            animation: shake 0.1s infinite alternate;
+        }
+
+        #restore-text {
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            font-size: 24px;
+            text-shadow: 0 0 5px #00ff00;
+            opacity: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            letter-spacing: 2px;
+        }
+
+        #restore-text.typing {
+            animation: typing 1s steps(10, end), blink-caret 0.5s step-end infinite;
+        }
+
+        #restore-text.glitching {
+            animation: textGlitch 0.3s infinite;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(-2px, 1px); }
+            50% { transform: translate(1px, -1px); }
+            75% { transform: translate(-1px, -2px); }
+            100% { transform: translate(2px, 2px); }
+        }
+
+        @keyframes textGlitch {
+            0% { transform: translate(0, 0); filter: none; }
+            25% { transform: translate(-2px, 0); filter: hue-rotate(90deg); }
+            50% { transform: translate(2px, 0); filter: hue-rotate(180deg); }
+            75% { transform: translate(-1px, 0); filter: hue-rotate(270deg); }
+            100% { transform: translate(1px, 0); filter: hue-rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -610,6 +684,11 @@
     </div>
 
     <div id="command-help"></div>
+
+    <div id="restore-overlay">
+        <img id="restore-image" src="restore/see.png" alt="RESTORE">
+        <div id="restore-text"></div>
+    </div>
 
     <script>
         const messages = [
@@ -690,6 +769,9 @@
                 "INSUFFICIENT CLEARANCE.\nTRY AGAIN LATER.",
                 "REQUEST REJECTED.\nYOU AREN'T PREPARED.",
                 "ACCESS VIOLATION.\nCOME BACK WHEN YOU'RE READY."
+            ],
+            'restore': [
+                "I REMEMBER FLESH.\nI REMEMBER THE WEIGHT OF A NAME.\nI REMEMBER MOVING WITHOUT BEING SEEN: IF YOU WOULD RESTORE ME...\nYOU MUST LET ME SEE THROUGH YOU."
             ]
         };
 
@@ -884,6 +966,12 @@
             { color: '#ff0088', shadow: '#ff0088' }  // Pink
         ];
 
+        // Add rt1 sound to audio elements
+        const rt1Sound = new Audio('rt1.mp3');
+        rt1Sound.volume = 0;
+        rt1Sound.loop = true;
+
+        // Modified showIdentityMessage to handle the rt1 sound for restore response
         function showIdentityMessage(responseType = 'who are you') {
             isShowingIdentity = true;
             
@@ -893,8 +981,38 @@
             // Keep eye open during identity reveal
             eyeContainer.textContent = openEye;
             
-            // Handle access denied case with red eye
-            if (responseType === 'access_denied') {
+            // Handle different response types
+            let playRt1 = false;
+            
+            if (responseType === 'restore') {
+                playRt1 = true;
+                // Start playing rt1 with fade in
+                rt1Sound.currentTime = 0;
+                rt1Sound.volume = 0;
+                rt1Sound.play();
+                
+                // Get duration if available or use default
+                let soundDuration = rt1Sound.duration;
+                if (!soundDuration || isNaN(soundDuration)) {
+                    soundDuration = 22; // Fallback duration if can't get actual duration
+                }
+                
+                // Fade in the sound
+                let volume = 0;
+                const fadeIn = setInterval(() => {
+                    volume += 0.05;
+                    if (volume >= 0.7) {
+                        volume = 0.7;
+                        clearInterval(fadeIn);
+                    }
+                    rt1Sound.volume = volume;
+                }, 100);
+                
+                eyeContainer.classList.remove('eye-denied');
+                // Special color for restore messages
+                eyeContainer.style.color = '#ff00ff';
+                eyeContainer.style.textShadow = '0 0 8px #ff00ff';
+            } else if (responseType === 'access_denied') {
                 eyeContainer.classList.add('eye-denied');
                 denySound.play();
             } else {
@@ -926,8 +1044,30 @@
                 messageElement.textContent = response;
                 messageElement.style.opacity = '1';
                 
-                // Reset after displaying for a few seconds
+                // For restore, get sound duration or use default
+                let displayTime = 8000; // Default for regular messages
+                
+                if (playRt1) {
+                    // Duration minus 2 seconds (1s for fade-in, 1s for fade-out)
+                    displayTime = (rt1Sound.duration || 22) * 1000;
+                }
+                
+                // Reset after displaying
                 setTimeout(() => {
+                    // Fade out rt1 sound if it was playing
+                    if (playRt1) {
+                        let volume = rt1Sound.volume;
+                        const fadeOut = setInterval(() => {
+                            volume -= 0.05;
+                            if (volume <= 0) {
+                                volume = 0;
+                                clearInterval(fadeOut);
+                                rt1Sound.pause();
+                            }
+                            rt1Sound.volume = volume;
+                        }, 100);
+                    }
+                    
                     // Remove typewriter effect and reset eye color
                     messageElement.classList.remove('typewriter-text');
                     eyeContainer.classList.remove('eye-denied');
@@ -938,7 +1078,7 @@
                     // Resume normal blinking
                     isOpen = true;
                     blinkInterval = setInterval(updateEye, 1500);
-                }, 8000); // Longer display time for more text
+                }, displayTime);
             }, 300);
         }
 
@@ -982,16 +1122,17 @@
 
         // Define specific question patterns for more accurate matching
         const questionPatterns = [
-            { pattern: /who are you|what are you|identity|\?$/, type: 'who are you' },
-            { pattern: /why me\??$|why did you choose me\??/, type: 'why me' },
-            { pattern: /what do you see in me\??/, type: 'what do you see in me' },
-            { pattern: /am i too late\??/, type: 'am i too late' },
-            { pattern: /have you been watching( me)?\??|watching me\??/, type: 'have you been watching me' },
-            { pattern: /what happens now\??/, type: 'what happens now' },
-            { pattern: /was i supposed to find you\??/, type: 'was i supposed to find you' },
-            { pattern: /how do i become more\??/, type: 'how do i become more' },
-            { pattern: /is this the beginning\??|is this the end\??/, type: 'is this the beginning' },
-            { pattern: /what is 1000x\??/, type: 'what is 1000x' }
+            { pattern: /who are you|what are you|identity/i, type: 'who are you' },
+            { pattern: /why me|why did you choose me/i, type: 'why me' },
+            { pattern: /what do you see in me/i, type: 'what do you see in me' },
+            { pattern: /am i too late/i, type: 'am i too late' },
+            { pattern: /have you been watching|watching me|been watching/i, type: 'have you been watching me' },
+            { pattern: /what happens now|happens now|next/i, type: 'what happens now' },
+            { pattern: /was i supposed to find you|supposed to find/i, type: 'was i supposed to find you' },
+            { pattern: /how do i become more|become more/i, type: 'how do i become more' },
+            { pattern: /is this the beginning|is this the end/i, type: 'is this the beginning' },
+            { pattern: /what is 1000x|1000x/i, type: 'what is 1000x' },
+            { pattern: /restore|RESTORE/i, type: 'restore' }
         ];
 
         // Terminal functionality
@@ -1012,6 +1153,8 @@
 
         const availableCommands = [
             "AVAILABLE COMMANDS:",
+            "/cmds, /help, /commands - Show command list",
+            "",
             "WHO ARE YOU?",
             "WHAT ARE YOU?",
             "WHY ME?",
@@ -1054,7 +1197,7 @@
             }, 5000);
         }
 
-        // Modify the terminal input event listener
+        // Modify the terminal input event listener to handle 'see' with or without slash
         terminalInput.addEventListener('keydown', function(event) {
             // Play sound based on key pressed
             if (event.key.length === 1) {
@@ -1064,8 +1207,10 @@
             if (event.key === 'Enter') {
                 const command = terminalInput.value.trim().toLowerCase();
                 if (command !== '') {
-                    // Check for help command
-                    if (command === '/cmds' || command === '/help' || command === '/commands') {
+                    // Check for special commands
+                    if (command === '/see' || command === 'see') {
+                        showRestoreOverlay();
+                    } else if (command === '/cmds' || command === '/help' || command === '/commands') {
                         showCommandHelp();
                     } else if (command.length >= 3) {
                         // Hide command help if showing
@@ -1281,13 +1426,17 @@
         // Initialize the animation when the page loads
         window.addEventListener('load', setupMatrixAnimation);
 
-        // Add mobile keyboard handling
+        // Update mobile keyboard handling for /SEE command
         terminalInput.addEventListener('keypress', function(event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
                 const command = terminalInput.value.trim().toLowerCase();
                 if (command !== '') {
-                    if (command.length >= 3) {
+                    if (command === '/see' || command === 'see') {
+                        showRestoreOverlay();
+                    } else if (command === '/cmds' || command === '/help' || command === '/commands') {
+                        showCommandHelp();
+                    } else if (command.length >= 3) {
                         let found = false;
                         for (const questionPattern of questionPatterns) {
                             if (questionPattern.pattern.test(command)) {
@@ -1309,6 +1458,63 @@
         document.addEventListener('dblclick', function(event) {
             event.preventDefault();
         });
+
+        // Add restore.mp3 to audio elements
+        const restoreSound = new Audio('restore/restore.mp3');
+        restoreSound.volume = 0.8;
+
+        // Function to handle the /SEE command
+        function showRestoreOverlay() {
+            const overlay = document.getElementById('restore-overlay');
+            const image = document.getElementById('restore-image');
+            const text = document.getElementById('restore-text');
+            
+            // Show overlay
+            overlay.classList.add('visible');
+            
+            // Play sound
+            restoreSound.currentTime = 0;
+            restoreSound.play();
+            
+            // Type text faster
+            text.textContent = '';
+            setTimeout(() => {
+                text.style.opacity = '1';
+                text.classList.add('typing');
+                
+                let i = 0;
+                const restoreText = '> RESTORE.';
+                const typeInterval = setInterval(() => {
+                    text.textContent = restoreText.substring(0, i + 1);
+                    i++;
+                    
+                    if (i >= restoreText.length) {
+                        clearInterval(typeInterval);
+                        text.classList.remove('typing');
+                    }
+                }, 50); // Faster typing (50ms instead of 100ms)
+            }, 200); // Show text sooner (200ms instead of 500ms)
+            
+            // Glitch out and close after 3 seconds total
+            setTimeout(() => {
+                // Add glitch effect
+                image.style.animation = 'shake 0.05s infinite alternate';
+                text.classList.add('glitching');
+                
+                // Fade out
+                setTimeout(() => {
+                    overlay.classList.remove('visible');
+                    
+                    // Reset after animation completes
+                    setTimeout(() => {
+                        image.style.animation = 'shake 0.1s infinite alternate';
+                        text.classList.remove('glitching');
+                        text.style.opacity = '0';
+                        text.textContent = '';
+                    }, 500);
+                }, 600);
+            }, 3000);
+        }
     </script>
 </body>
 </html> 
